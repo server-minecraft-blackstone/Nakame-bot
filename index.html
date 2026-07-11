@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cliquez pour regarder la vidéo</title>
+
+<!-- Préchargement de l'image pour un affichage instantané -->
+<link rel="preload" as="image" href="https://preview.redd.it/big-monke-flips-you-off-what-u-do-v0-861gk9gqka0c1.png?auto=webp&s=4ffd6a12783c45e1a56bb7c19a57ead83aaa4f33">
+
+<style>
+  /* ---------- Reset de base ---------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    background-color: #111; /* Fond sombre */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    overflow-x: hidden;
+    padding: 20px;
+  }
+
+  /* ---------- Texte d'accroche ---------- */
+  .call-to-action {
+    color: #fff;
+    font-weight: bold;
+    font-size: clamp(1.2rem, 3vw, 2.2rem);
+    text-align: center;
+    margin-bottom: 30px;
+    animation: pulse 1.6s ease-in-out infinite;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+  }
+
+  @keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- Flèche animée (bonus) ---------- */
+  .arrow {
+    font-size: 2rem;
+    color: #fff;
+    animation: bounce 1.2s infinite;
+    margin-bottom: 10px;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(12px); }
+  }
+
+  /* ---------- Conteneur de l'image (pour l'effet shine) ---------- */
+  .image-wrapper {
+    position: relative;
+    width: 75%;              /* ~70-80% de la largeur de l'écran */
+    max-width: 900px;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); /* Ombre portée moderne */
+    cursor: pointer;
+
+    /* Animation d'apparition */
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards, float 4s ease-in-out infinite 1.2s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Flottement léger (bonus) */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+
+  .image-wrapper img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    transition: transform 0.4s ease;
+    user-select: none;
+  }
+
+  /* Zoom léger au survol */
+  .image-wrapper:hover img {
+    transform: scale(1.05);
+  }
+
+  /* ---------- Effet de brillance (shine) qui traverse l'image ---------- */
+  .image-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.35) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-20deg);
+    animation: shine 4s ease-in-out infinite;
+    animation-delay: 2s;
+    pointer-events: none;
+  }
+
+  @keyframes shine {
+    0%   { left: -75%; }
+    20%  { left: 125%; }
+    100% { left: 125%; }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 600px) {
+    .image-wrapper {
+      width: 90%;
+    }
+    .call-to-action {
+      margin-bottom: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Flèche animée pointant vers l'image -->
+  <div class="arrow">👇</div>
+
+  <!-- Texte d'accroche -->
+  <p class="call-to-action">👇 Cliquez sur l'image pour regarder la vidéo 👇</p>
+
+  <!-- Conteneur de l'image cliquable -->
+  <div class="image-wrapper" id="clickableImage">
+    <img
+      src="https://preview.redd.it/big-monke-flips-you-off-what-u-do-v0-861gk9gqka0c1.png?auto=webp&s=4ffd6a12783c45e1a56bb7c19a57ead83aaa4f33"
+      alt="Cliquez pour regarder la vidéo"
+      draggable="false"
+    >
+  </div>
+
+  <script>
+    // URL de la vidéo YouTube à ouvrir
+    const YOUTUBE_URL = "https://www.youtube.com/watch?v=YU8m639lD_k";
+
+    const imageWrapper = document.getElementById('clickableImage');
+
+    /**
+     * Joue un petit son "clic" via l'API Web Audio native,
+     * sans nécessiter de fichier audio externe.
+     */
+    function playClickSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, ctx.currentTime); // note aiguë
+        oscillator.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.15);
+
+        gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 0.2);
+      } catch (e) {
+        // Si l'API audio n'est pas disponible, on ignore silencieusement
+        console.warn("Effet sonore non disponible :", e);
+      }
+    }
+
+    // Gestion du clic sur l'image
+    imageWrapper.addEventListener('click', function () {
+      playClickSound();
+      window.open(YOUTUBE_URL, '_blank');
+    });
+  </script>
+
+</body>
+</html>
